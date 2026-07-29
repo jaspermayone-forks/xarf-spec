@@ -115,6 +115,10 @@ Validate in order:
 
 Unknown fields are always permitted — the core schema sets `additionalProperties: true`.
 
+**Enable format assertion.** Under JSON Schema draft 2020-12, `format` keywords are annotations by default and are *not* enforced unless the validator runs in format-assertion mode. XARF validators **must enable format assertion** so that constrained fields are actually checked — including `report_id` (`uuid`), `timestamp` (`date-time`), IP-based fields (`ipv4`/`ipv6`), and `reporter.contact` (`email`). A report that is structurally well-formed but carries a malformed `report_id` or `timestamp` is **not** a valid XARF report.
+
+**`report_id` UUID version.** `report_id` is constrained by `format: "uuid"`, which accepts any RFC 4122 UUID version. Generators **should** emit a UUID v4 (see [Generator Requirements](#generator-requirements)), but validators **must not** reject other valid UUID versions such as v7 — the version is a generation recommendation, not a validation constraint.
+
 ### 3. Field Requirement Enforcement
 
 Apply the following per field, after merging requirements from both schemas:
@@ -221,7 +225,7 @@ Examples:
 
 ## Tag Namespace Conventions
 
-Tags use the format `namespace:value`, where both the namespace and value consist of lowercase alphanumeric characters and underscores only.
+Tags use the format `namespace:value`. Both the namespace and value must start with a lowercase alphanumeric character. The namespace may then contain lowercase alphanumerics, `_`, `+`, and `-`; the value allows those plus `.` (so domains can be used as values, e.g. `malicious_link:example.com`). The full pattern is `^[a-z0-9][a-z0-9_+-]*:[a-z0-9][a-z0-9_+-.]*$`.
 
 Standard namespaces:
 
